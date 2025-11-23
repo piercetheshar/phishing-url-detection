@@ -50,3 +50,16 @@ Class distribution charts
 Source: UCI Machine Learning Repository – Phishing Websites Dataset
 Samples: 235,794 URLs
 Classes: Legitimate (0) vs Phishing (1)
+
+🛠️ Tech Stack
+
+Python
+
+Pandas, NumPy
+
+Matplotlib, Seaborn
+
+Scikit-Learn
+
+Jupyter Notebook
+
