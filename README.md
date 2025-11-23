@@ -97,25 +97,3 @@ The notebook (and scripts) perform:
 
 ---
 
-## 🗂️ Repository Structure
-
-Suggested structure for this project:
-
-```text
-phishing-url-detection/
-├─ data/
-│  └─ phishing.csv
-├─ notebooks/
-│  └─ phase_1_exploration.ipynb
-├─ src/
-│  ├─ data_preprocessing.py
-│  ├─ feature_engineering.py
-│  ├─ eda.py
-│  └─ utils.py
-├─ reports/
-│  └─ phase_1_report.pdf
-├─ docs/
-│  └─ workflow_diagram.png   # (optional, add later)
-├─ README.md
-├─ requirements.txt
-└─ .gitignore
