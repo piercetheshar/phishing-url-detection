@@ -1,99 +1,153 @@
-# Phishing URL Detection – Data Intensive Computing Project
+# 🔐 Phishing URL Detection – Data Preparation, Feature Engineering & EDA
 
-[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)]()
-[![Jupyter Notebook](https://img.shields.io/badge/Notebook-Phase%201-green.svg)]()
-[![Pandas](https://img.shields.io/badge/Pandas-EDA-orange.svg)]()
-[![scikit-learn](https://img.shields.io/badge/ML-Scikit--learn-yellow.svg)]()
-
-A data-intensive project to detect **phishing vs. legitimate websites** using only their URL-based features.  
-The project uses the **UCI Phishing Websites dataset** (~235k URLs, 56+ features) and focuses on **data cleaning, preprocessing, exploratory data analysis (EDA), and feature engineering** to build stronger machine learning models. :contentReference[oaicite:0]{index=0}
+This repository contains a complete **phishing URL detection project**, including dataset preparation, cleaning, feature engineering, and exploratory data analysis (EDA). The goal is to prepare high-quality data for building machine learning models that classify URLs as **phishing** or **legitimate**. :contentReference[oaicite:0]{index=0}
 
 ---
 
-## 🚀 Project Goals
+## 📌 Overview
 
-- Clean and preprocess a large phishing URL dataset.
-- Explore feature distributions, correlations, and class imbalance.
-- Engineer **new URL-based features** to better capture phishing patterns.
-- Prepare a modeling-ready dataset for downstream ML classifiers.
+Phishing websites attempt to trick users into revealing sensitive information by mimicking legitimate sites. Detecting these URLs early is critical to preventing cyber-attacks, identity theft, and financial loss.
+
+This project performs:
+
+- ✔ **Data loading & preprocessing**  
+- ✔ **Handling missing values & duplicates**  
+- ✔ **Feature scaling & outlier removal**  
+- ✔ **Exploratory data analysis (EDA)**  
+- ✔ **Custom URL-based feature engineering**  
+
+This forms the foundation for training high-performance ML classifiers (e.g., Random Forest, XGBoost, Logistic Regression, etc.) in future work.
 
 ---
 
 ## 📊 Dataset
 
-- **Source:** UCI Machine Learning Repository – Phishing Websites dataset  
-- **Samples:** ~235,794 URLs  
+- **Samples:** 235,794 URLs  
 - **Classes:**  
-  - `0` – Legitimate  
-  - `1` – Phishing  
-- **File used in this repo:** `phishing.csv`
+  - **Phishing:** 100,945  
+  - **Legitimate:** 134,850  
+- **Features:** 56 original + 4 engineered features  
+- **Format:** Cleaned CSV file
 
-The dataset includes both original and derived URL features, such as URL length, domain characteristics, presence of special characters, and more. :contentReference[oaicite:1]{index=1}
+### 🔧 Engineered Features (important!)
+Based on URL behavior, we engineered the following additional attributes: :contentReference[oaicite:1]{index=1}  
 
----
+- **CharContinuationRate** – Measures irregular character transitions  
+- **URLTitleMatchScore** – How closely the HTML `<title>` matches the URL  
+- **URLCharProb** – Statistical probability of character sequences  
+- **TLDLegitimateProb** – Likelihood the top-level domain is legitimate  
 
-## 🛠️ Data Cleaning & Preprocessing
-
-Key steps implemented:
-
-1. **Missing values**
-   - Checked with `df.isnull().sum()`
-   - Imputed using column-wise mean for numeric features:
-     ```python
-     df.fillna(df.mean(numeric_only=True), inplace=True)
-     ```
-
-2. **Duplicate records**
-   - Detected and removed to avoid bias:
-     ```python
-     df_cleaned = df.drop_duplicates()
-     ```
-
-3. **Data types & binary features**
-   - Columns with only 2 unique values converted to `bool` for consistency.
-
-4. **Outlier removal**
-   - Used **IQR (Interquartile Range)** per numeric column to detect and drop extreme outliers.
-
-5. **Feature scaling**
-   - Applied Min–Max scaling to bring all features to `[0, 1]`:
-     \[
-     X_\text{scaled} = \frac{X - X_\min}{X_\max - X_\min}
-     \]
+These features significantly improve URL-based threat detection.
 
 ---
 
-## 🧠 Feature Engineering
+## 🧹 Data Preprocessing
 
-New features were engineered to better capture phishing patterns in URLs: :contentReference[oaicite:2]{index=2}
+Key preprocessing steps implemented:
 
-1. **`CharContinuationRate`**  
-   Measures how smoothly characters transition in the URL, flagging abnormal character sequences.
+### ✔ Missing values
+```python
+df.fillna(df.mean(numeric_only=True), inplace=True)
+```
 
-2. **`URLTitleMatchScore`**  
-   Quantifies similarity between the URL and the page title (legitimate sites usually align).
+### ✔ Duplicate removal
+```python
+df = df.drop_duplicates()
+```
 
-3. **`URLCharProb`**  
-   Estimates how likely character sequences in the URL are under a normal distribution of characters.
+### ✔ Data type normalization
+- Convert binary columns → `bool`
+- Normalize numeric types for modeling
 
-4. **`TLDLegitimateProb`**  
-   Scores the top-level domain (TLD) based on its historical use in phishing vs. legitimate URLs.
+### ✔ Outlier removal (IQR)
+Used for skewed features to reduce noise.
 
-These engineered features are added as extra columns to the dataset for downstream modeling.
+### ✔ Min-Max scaling
+```python
+X_scaled = (X - X.min()) / (X.max() - X.min())
+```
+
+---
+
+## 🔍 Exploratory Data Analysis (EDA)
+
+The notebook includes:
+
+- 📉 **Histograms** for numeric features  
+- 🔥 **Correlation heatmaps**  
+- 🧊 **Boxplots** for distribution and outliers  
+- 🧮 **Class distribution plots (bar/pie)**  
+- 🔗 High correlation between `URLLength` and `DomainLength` observed  
+- 🧾 Summary statistics for all columns  
+
+These insights directly influence model selection and preprocessing strategy. :contentReference[oaicite:2]{index=2}
 
 ---
 
-## 📈 Exploratory Data Analysis (EDA)
+## 📁 Repository Structure
 
-The notebook (and scripts) perform:
-
-- **Descriptive statistics** via `df.describe()`
-- **Histograms** of key features to inspect skewness and spread
-- **Correlation heatmap** to spot redundant features and multicollinearity
-- **Class distribution plots**:
-  - Bar chart of counts for class 0 vs. class 1
-  - Pie chart showing ~64% legitimate vs. ~36% phishing URLs :contentReference[oaicite:3]{index=3}
-- **Boxplots** of numeric features to visualize outliers and variability
+```text
+.
+├── data/
+│   └── phishing.csv                  # dataset
+├── notebook/
+│   └── phishing_eda.ipynb            # main analysis notebook
+├── reports/
+│   └── phishing_report.pdf           # project report
+├── src/
+│   ├── data_loader.py                # loading, basic validation
+│   ├── preprocessing.py              # cleaning, scaling, outliers
+│   └── feature_engineering.py        # URL-level engineered features
+├── requirements.txt
+├── .gitignore
+└── README.md
+```
 
 ---
+
+## ▶️ How to Run
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/<your-username>/phishing-url-detection.git
+cd phishing-url-detection
+```
+
+### 2. Create and activate virtual environment
+```bash
+python -m venv .venv
+source .venv/bin/activate        # macOS / Linux
+# .venv\Scripts\activate         # Windows
+```
+
+### 3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Open the Jupyter notebook
+```bash
+jupyter notebook notebook/phishing_eda.ipynb
+```
+
+---
+
+## 📦 Requirements
+
+```text
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+scipy
+notebook
+```
+
+---
+
+## 📚 References
+
+- UCI ML Repository – Phishing Websites / URL datasets  
+- *Phishing URL Detection Report* (included in `/reports/`) :contentReference[oaicite:3]{index=3}
 
