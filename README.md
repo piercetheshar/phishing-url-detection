@@ -1,4 +1,4 @@
-# ⭐ Phishing URL Detection – Data Intensive Computing Project
+# ⭐ Phishing URL Detection 
 
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)]()
 [![Jupyter Notebook](https://img.shields.io/badge/Notebook-Analysis-success.svg)]()
@@ -213,7 +213,7 @@ Random Forest typically performs best.
 
 ---
 
-# 🚀 Future Extensions (Optional Phase 3)
+# 🚀 Future Extensions 
 
 - Hyperparameter tuning (GridSearch, Bayesian Optimization)
 - Feature importance + SHAP explainability
