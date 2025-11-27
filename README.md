@@ -13,24 +13,6 @@ This repository includes a full pipeline for:
 - **Exploratory Data Analysis (EDA)**  
 - **ML model training & evaluation**
 
----
-
-# 📁 Repository Structure
-
-```
-.
-├── notebook/
-│   └── phase1_analysis.ipynb
-├── src/
-│   ├── data_loader.py
-│   ├── preprocessing.py
-│   ├── feature_engineering.py
-│   ├── modeling.py
-│   └── train_phase2.py
-├── phishing.csv
-├── README.md
-└── requirements.txt
-```
 
 ---
 
