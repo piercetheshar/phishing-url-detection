@@ -1,4 +1,4 @@
-# 🔐 Phishing URL Detection – Data Preparation, Feature Engineering & EDA
+# 🔐 Phishing URL Detection 
 
 This repository contains a complete **phishing URL detection project**, including dataset preparation, cleaning, feature engineering, and exploratory data analysis (EDA). The goal is to prepare high-quality data for building machine learning models that classify URLs as **phishing** or **legitimate**. :contentReference[oaicite:0]{index=0}
 
