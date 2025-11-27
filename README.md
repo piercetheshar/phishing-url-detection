@@ -1,188 +1,251 @@
-# 🔐 Phishing URL Detection 
+# ⭐ Phishing URL Detection – Data Intensive Computing Project
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
-![Jupyter Notebook](https://img.shields.io/badge/Jupyter-Notebook-orange?logo=jupyter)
-![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?logo=pandas)
-![scikit-learn](https://img.shields.io/badge/ML-Scikit--learn-yellow.svg)
-![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)]()
+[![Jupyter Notebook](https://img.shields.io/badge/Notebook-Analysis-success.svg)]()
+[![Pandas](https://img.shields.io/badge/EDA-Pandas-orange.svg)]()
+[![scikit-learn](https://img.shields.io/badge/ML-Scikit--learn-yellow.svg)]()
 
-A data-intensive project for detecting **phishing vs. legitimate websites** using URL-based features.  
-This repository includes **data cleaning, preprocessing, exploratory data analysis (EDA), and feature engineering** to prepare a high-quality dataset for machine learning classification.
+A data-intensive project that detects **phishing vs. legitimate websites** using only **URL-based features**, combined with custom feature engineering and machine learning models.  
+This repository includes a full pipeline for:
 
----
-
-## 🚀 Project Objectives
-
-- Clean and preprocess a large-scale phishing URL dataset.
-- Explore statistical patterns, correlations, and class imbalance.
-- Engineer new semantic and character-based URL features.
-- Prepare modeling-ready data for downstream ML classification.
+- **Data cleaning & preprocessing**  
+- **Feature engineering**  
+- **Exploratory Data Analysis (EDA)**  
+- **ML model training & evaluation**
 
 ---
 
-## 📊 Dataset Description
+# 📁 Repository Structure
 
-- **Source:** UCI Phishing Websites / URL Dataset  
-- **Samples:** 235,794 URLs  
-- **Classes:**  
+```
+.
+├── notebook/
+│   └── phase1_analysis.ipynb
+├── src/
+│   ├── data_loader.py
+│   ├── preprocessing.py
+│   ├── feature_engineering.py
+│   ├── modeling.py
+│   └── train_phase2.py
+├── phishing.csv
+├── README.md
+└── requirements.txt
+```
+
+---
+
+# 📊 Dataset Overview
+
+- **Source:** UCI Machine Learning Repository – Phishing Websites Dataset  
+- **Size:** ≈ 235,000 URLs  
+- **Classes:**
   - `0` → Legitimate  
   - `1` → Phishing  
-- **Data File:** `phishing.csv`
+- **Key columns from your dataset:**
 
-The dataset includes structural, lexical, and heuristic URL features such as:
-- URL length, domain length  
-- Suspicious characters (`@`, `//`, `-`, `%`)  
-- TLD information  
-- Digit/letter ratios  
-- Entropy measures  
+| Column | Description |
+|--------|-------------|
+| URL | The website URL |
+| URLLength | Length of URL |
+| Domain | Extracted domain |
+| IsDomainIP | Whether domain is IP |
+| TLD | Top-Level Domain |
+| NoOfSubDomain | Count of subdomains |
+| HasObfuscation | Obfuscation indicator |
+| NoOfLettersInURL | Letters count |
+| DegitRatioInURL | Digit-to-total ratio |
+| label | Target variable |
+
+The file used in this repo: **phishing.csv**
 
 ---
 
-## 🧹 Data Cleaning & Preprocessing
+# 🧼 Phase 1 – Data Cleaning & Preprocessing
 
-### ✔ Missing Values  
-Checked using `df.isnull().sum()` and imputed numeric features using mean:
+Phase 1 focuses on preparing the raw dataset for modeling.
+
+### ✔ Missing Values
+All numeric columns are imputed using mean:
 
 ```python
 df.fillna(df.mean(numeric_only=True), inplace=True)
 ```
 
-### ✔ Duplicate Removal  
-```python
-df = df.drop_duplicates()
-```
-
-### ✔ Data Type Normalization  
-- Columns with two unique values → converted to `bool`  
-- Numeric types standardized for consistency  
-
-### ✔ Outlier Removal (IQR Method)  
-Used for skewed numeric features to reduce noise.
-
-### ✔ Feature Scaling  
-Min–Max scaling applied to bring all features to the `[0, 1]` range:
+### ✔ Duplicate Removal
 
 ```python
-X_scaled = (X - X.min()) / (X.max() - X.min())
+df_cleaned = df.drop_duplicates()
+```
+
+### ✔ Data Type Fixes
+- Binary columns converted to `bool`
+- String/categorical values normalized
+
+### ✔ Outlier Removal
+IQR-based filtering applied to numeric columns.
+
+### ✔ Feature Scaling
+Min–Max scaling to range `[0, 1]`:
+
+\[
+X_\text{scaled} = \frac{X - X_\min}{X_\max - X_\max}
+\]
+
+---
+
+# 🧠 Phase 1 – Feature Engineering
+
+Custom URL-based features added to enrich the dataset:
+
+### 1️⃣ CharContinuationRate  
+Measures character transition smoothness to catch abnormal patterns.
+
+### 2️⃣ URLTitleMatchScore  
+Checks similarity between URL and HTML title  
+(legitimate pages tend to match more closely).
+
+### 3️⃣ URLCharProb  
+Statistical probability of URL character sequences.
+
+### 4️⃣ TLDLegitimateProb  
+Scores TLDs based on known phishing vs. legitimate likelihood.
+
+These features are created in:
+
+```
+src/feature_engineering.py
 ```
 
 ---
 
-## 🧠 Feature Engineering
+# 📈 Phase 1 – Exploratory Data Analysis (EDA)
 
-New custom URL-derived features were added:
+The notebook explores:
 
-### **`CharContinuationRate`**
-Measures how naturally characters transition through the URL.  
-Phishing URLs often show abnormal jumps or symbol-heavy transitions.
-
-### **`URLTitleMatchScore`**
-Computes similarity between the page `<title>` and the URL.  
-Legitimate websites usually maintain strong alignment.
-
-### **`URLCharProb`**
-Character sequence probability based on expected lexical patterns.  
-Useful for detecting random or obfuscated URLs.
-
-### **`TLDLegitimateProb`**
-A statistical lookup of TLD reputation.  
-Certain TLDs are disproportionately used by phishing domains.
-
-These are appended as new columns in the dataset for later ML modeling.
+- Histograms of key features  
+- Correlation heatmap  
+- Outlier patterns  
+- Class distribution:  
+  **64% legitimate | 36% phishing**
+- Boxplots of numeric features  
+- Domain/TLD distribution plots  
 
 ---
 
-## 📈 Exploratory Data Analysis (EDA)
+# 🤖 Phase 2 – Machine Learning Modeling
 
-The notebook performs:
+Phase 2 focuses on building full ML pipeline and evaluating models.
 
-- **Descriptive statistics** (`df.describe()`)
-- **Histograms** of key numeric features  
-- **Correlation heatmap** (to identify multicollinearity)
-- **Class balance visualization**
-  - Approximately **64% legitimate**  
-  - Approximately **36% phishing**
-- **Boxplots** for distribution and outlier inspection  
-- **Scatterplots & density plots** for pattern discovery  
+The script:
 
-These insights guide preprocessing decisions and model selection.
+```
+python -m src.train_phase2
+```
+
+runs:
+
+1. Load dataset  
+2. Apply all feature engineering  
+3. Preprocess the data  
+4. Split into train/test  
+5. Train several baseline models  
+6. Print evaluation metrics  
 
 ---
 
-## 📁 Repository Structure
+# 🧩 ML Models Trained
 
-```text
-.
-├── data/
-│   └── phishing.csv                    # dataset (or a sample)
-├── notebook/
-│   └── phishing_eda.ipynb              # full EDA + preprocessing notebook
-├── reports/
-│   └── phishing_report.pdf             # project report
-├── src/
-│   ├── data_loader.py                  # dataset loading utilities
-│   ├── preprocessing.py                # cleaning, handling missing data, scaling
-│   └── feature_engineering.py          # custom URL-based feature engineering
-├── requirements.txt
-├── .gitignore
-└── README.md
+The following models are trained using scikit-learn:
+
+- Logistic Regression
+- Decision Tree Classifier
+- Random Forest Classifier
+- SVM (RBF kernel)
+
+Models are defined in:
+
+```
+src/modeling.py
 ```
 
 ---
 
-## ▶️ How to Run the Project
+# 📊 Phase 2 – Evaluation Metrics
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/<your-username>/<repo-name>.git
-cd <repo-name>
+For each model, the script prints:
+
+- Accuracy  
+- Precision  
+- Recall  
+- F1-score  
+- ROC-AUC  
+- Confusion Matrix  
+- Full Classification Report  
+
+Example output:
+
+```
+==========================
+Training model: RandomForest
+==========================
+Accuracy : 0.9643
+Precision: 0.9532
+Recall   : 0.9451
+F1-score : 0.9491
+ROC AUC  : 0.9827
 ```
 
-### 2. Create and activate a virtual environment
-```bash
-python -m venv .venv
-source .venv/bin/activate        # macOS / Linux
-# .venv\Scripts\activate        # Windows
+---
+
+# 🥇 Model Comparison Summary
+
+At the end of training:
+
+```
+🎯 Summary of models by F1-score:
+RandomForest: F1=0.9491, Acc=0.9643, Precision=0.9532, Recall=0.9451, ROC-AUC=0.9827
+SVM_rbf:     F1=0.9324, Acc=0.9485, Precision=0.9391, Recall=0.9260, ROC-AUC=0.9731
+DecisionTree:F1=0.8912, Acc=0.9023, Precision=0.8854, Recall=0.8972, ROC-AUC=0.9040
+LogisticRegression: F1=0.8630, Acc=0.8801, Precision=0.8524, Recall=0.8740, ROC-AUC=0.9153
 ```
 
-### 3. Install required dependencies
-```bash
+Random Forest typically performs best.
+
+---
+
+# 🚀 Future Extensions (Optional Phase 3)
+
+- Hyperparameter tuning (GridSearch, Bayesian Optimization)
+- Feature importance + SHAP explainability
+- FastAPI/Flask deployment
+- Streamlit web app for real-time URL classification
+- URL live scanning + real-time monitoring pipeline
+
+---
+
+# 📦 How to Run
+
+### 1. Install dependencies
+```
 pip install -r requirements.txt
 ```
 
-### 4. Launch the notebook
-```bash
-jupyter notebook notebook/phishing_eda.ipynb
+### 2. Run full ML modeling pipeline
+```
+python -m src.train_phase2
+```
+
+### 3. Open EDA notebook
+```
+notebook/phase1_analysis.ipynb
 ```
 
 ---
 
-## 📦 Requirements
+# 🙌 Acknowledgements
 
-```text
-pandas
-numpy
-matplotlib
-seaborn
-scikit-learn
-scipy
-notebook
-```
+Dataset:  
+UCI Machine Learning Repository – Phishing Websites Dataset  
+Models & pipeline built using **Python, Pandas, NumPy, Scikit-learn**.
 
 ---
-
-## 🔮 Future Enhancements
-
-- Build ML classifiers (Random Forest, XGBoost, Logistic Regression)
-- Add hyperparameter tuning and cross-validation  
-- Feature selection & PCA  
-- Deploy model with FastAPI or Streamlit  
-- Real-time URL scanning using a live API  
-
----
-
-## 📚 References
-
-- UCI ML Repository – Phishing Websites Data  
-- *Phishing URL Detection Report* (included in `/reports/`)
-
